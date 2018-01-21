@@ -1,3 +1,7 @@
+# bt_expense folders and files to ignore
+*.xlsx
+!Expenses.xlsx
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -99,3 +103,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+
