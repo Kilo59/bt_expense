@@ -1,5 +1,6 @@
 # bt_expense
 Send "expense entries" held in an Excel Workbook to BigTime via REST API
+[![Build Status](https://travis-ci.org/Kilo59/bt_expense.svg?branch=master)](https://travis-ci.org/Kilo59/bt_expense)
 
 ## BigTime REST API
 http://iq.bigtime.net/BigtimeData/api/v2/help/Expense
