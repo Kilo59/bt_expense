@@ -1,7 +1,7 @@
 """
 bt_expense.py
 ~~~~~~~~~
-
+Pull expenses from Excel Spreadsheet and upload to BigTime via REST HTTP call.
 """
 import os
 from pprint import pprint as pp
@@ -18,8 +18,9 @@ UTF = 'utf-8'
 # Global Variables
 BT_LOOKUP = {'proj' : {},
              'cat' : {},}
-wb_name = 'Expenses.xlsx'
-WB = load_workbook(filename=wb_name)
+
+def get_wb(workbook_name='Expenses.xlsx'):
+    return load_workbook(filename=workbook_name)
 
 def build_lookup_dictionary():
     project_names = get_values('Projects', 'A2')
@@ -34,7 +35,7 @@ def get_values(sheet_name, start, stop=None):
     """Pulls a column (or section) of values from a Worksheet.
     Returns a list."""
     values = []
-    sheet = WB[sheet_name]
+    sheet = get_wb()[sheet_name]
     if not stop:
         stop = sheet.max_row
     cells = [c[0].value for c in sheet[start:stop]]

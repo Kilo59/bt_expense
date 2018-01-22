@@ -10,6 +10,8 @@ install:
   - pip install coverage
   - pip install python-coveralls
   - pip install pytest-cov
+before script:
+  - ls
 # command to run tests
 script:
   - pytest --cov-report term --cov-report xml --cov=bt_expense tests/
