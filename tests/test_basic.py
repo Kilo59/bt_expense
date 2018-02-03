@@ -9,10 +9,11 @@ import unittest
 import pytest
 
 from context import bt_expense as bte
+from context import fixpath
 
 TEST_DIR = os.path.abspath(os.path.dirname(__file__))
 ROOT_DIR = os.path.dirname(TEST_DIR)
-MAIN_DIR = '{}\\bt_expense'.format(ROOT_DIR)
+MAIN_DIR = '{}/bt_expense'.format(ROOT_DIR)
 
 
 class SmokeTest(unittest.TestCase):

@@ -10,6 +10,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../b
 
 import bt_expense
 
+def fixpath(path):
+    path = os.path.normpath(os.path.expanduser(path))
+    if path.startswith("\\"): return "C:" + path
+    return path
+
 print('USING context.py')
 
 if __name__ == '__main__':
