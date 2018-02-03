@@ -2,7 +2,7 @@ language: python
 python:
   - "3.5"
   - "3.6"
-  - "3.7-dev"
+  # - "3.7-dev"
 # command to install dependencies  
 install:
   - pip install --upgrade pip 
@@ -11,13 +11,18 @@ install:
   - pip install coverage
   - pip install python-coveralls
   - pip install pytest-cov
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 # command to run tests
 script:
   - ls
   - pytest --cov-report term --cov-report xml --cov=bt_expense tests/
+after_script:
+  - ./cc-test-reporter after-build -t coverage.py --exit-code $TRAVIS_TEST_RESULT
 after_success:
   - coveralls
-  - ls
 branches:
   only:
     - master
