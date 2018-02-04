@@ -6,14 +6,14 @@ simple tests for bt_expense.
 import os
 import unittest
 
-import pytest
+# import pytest
 
 from context import bt_expense as bte
 from context import fixpath
 
-TEST_DIR = os.path.abspath(os.path.dirname(__file__))
-ROOT_DIR = os.path.dirname(TEST_DIR)
-MAIN_DIR = '{}/bt_expense'.format(ROOT_DIR)
+TEST_DIR = fixpath(os.path.abspath(os.path.dirname(__file__)))
+ROOT_DIR = fixpath(os.path.dirname(TEST_DIR))
+MAIN_DIR = fixpath('{}/bt_expense'.format(ROOT_DIR))
 
 
 class SmokeTest(unittest.TestCase):
@@ -28,6 +28,7 @@ class SmokeTest(unittest.TestCase):
         os.chdir(MAIN_DIR)
         a1 = bte.get_values('Expenses', 'A1')[0]
         self.assertEqual(a1, 'Project')
+
 
 if __name__ == "__main__":
     print(__doc__)
