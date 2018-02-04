@@ -4,6 +4,9 @@ Send "expense entries" held in an Excel Workbook to BigTime via REST API
 [![Build Status](https://travis-ci.org/Kilo59/bt_expense.svg?branch=master)](https://travis-ci.org/Kilo59/bt_expense)
 [![Coverage Status](https://coveralls.io/repos/github/Kilo59/bt_expense/badge.svg)](https://coveralls.io/github/Kilo59/bt_expense)
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/de6562a837d19af821ac/maintainability)](https://codeclimate.com/github/Kilo59/bt_expense/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/de6562a837d19af821ac/test_coverage)](https://codeclimate.com/github/Kilo59/bt_expense/test_coverage)
+
 ## BigTime REST API
 http://iq.bigtime.net/BigtimeData/api/v2/help/Expense
 
