@@ -42,9 +42,19 @@ def get_values(sheet_name, start, stop=None):
     values = [c for c in cells if c is not None]
     return values
 
+def build_credentials():
+    """Pulls Login information from the `Setup` worksheet. Return dictionary
+    for Auth Header."""
+    keys = get_values('Setup', 'A1', 'A4')
+    values = get_values('Setup', 'B1', 'B4')
+    header = {k:v for (k,v) in zip(keys, values)}
+    # TODO: Format for BigTime
+    return header
+
 
 if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
     build_lookup_dictionary()
     pp(BT_LOOKUP)
+    pp(build_credentials())
