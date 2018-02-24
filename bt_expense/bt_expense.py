@@ -24,7 +24,8 @@ def get_wb(workbook_name='Expenses.xlsx'):
     return load_workbook(filename=workbook_name)
 
 
-def build_lookup_dictionary():
+def build_lookup_dictn_from_excel():
+    """Build lookup_dictionaries from the excel workbook"""
     project_names = get_values('Projects', 'A2')
     project_ids = get_values('Projects', 'B2')
     category_names = get_values('Categories', 'A2')
@@ -56,9 +57,20 @@ def build_credentials():
     return header
 
 
+def get_picklist(picklist_name):
+    """Pulls a BigTime 'Picklist'
+    Use to build project and expense catagory lookup tables"""
+    # TODO: complete `get_picklist()` function
+    valid_picklists = ['projects', 'ExpenseCodes']
+    if picklist_name not in valid_picklists:
+        raise ValueError('Not a valid picklist')
+    header = build_credentials()
+    return picklist_name
+
+
 if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
-    build_lookup_dictionary()
+    build_lookup_dictn_from_excel()
     pp(BT_LOOKUP)
     pp(build_credentials())
