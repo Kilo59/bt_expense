@@ -5,6 +5,7 @@ Pull expenses from Excel Spreadsheet and upload to BigTime via REST HTTP call.
 """
 import os
 from pprint import pprint as pp
+# from pprint import pformat as pf
 # import openpyxl as opxl
 # import requests as r
 from openpyxl import load_workbook
@@ -18,6 +19,31 @@ UTF = 'utf-8'
 # Global Variables
 BT_LOOKUP = {'proj': {},
              'cat': {}, }
+
+
+class Authorizer(object):
+    """Autherizes a BitTime REST API session.
+    Can authorize using a user login and password or an API key.
+
+    User login and password will be used to obtain an API key.
+    If API key is provided, skip the step of obtaining API key"""
+
+    def __init__(self, workbook_filename='Expenses.xlsx'):
+        self.wb_name = workbook_filename
+        self.userid = None
+        self.userpwd = None
+        self.api_key = None
+        self.header = self._build_credentials()
+        self.autherized = False
+
+    def _build_credentials(self):
+        """Pulls Login information from the `Setup` worksheet. Return dictionary
+        for Auth Header."""
+        keys = get_values('Setup', 'A1', 'A4', workbook_name=self.wb_name)
+        values = get_values('Setup', 'B1', 'B4', workbook_name=self.wb_name)
+        header = {k: v for (k, v) in zip(keys, values)}
+        # TODO: Format for BigTime
+        return header
 
 
 def get_wb(workbook_name='Expenses.xlsx'):
@@ -35,7 +61,7 @@ def build_lookup_dictn_from_excel():
     return project_ids, category_ids
 
 
-def get_values(sheet_name, start, stop=None):
+def get_values(sheet_name, start, stop=None, workbook_name='Expenses.xlsx'):
     """Pulls a column (or section) of values from a Worksheet.
     Returns a list."""
     values = []
@@ -47,16 +73,6 @@ def get_values(sheet_name, start, stop=None):
     return values
 
 
-def build_credentials():
-    """Pulls Login information from the `Setup` worksheet. Return dictionary
-    for Auth Header."""
-    keys = get_values('Setup', 'A1', 'A4')
-    values = get_values('Setup', 'B1', 'B4')
-    header = {k: v for (k, v) in zip(keys, values)}
-    # TODO: Format for BigTime
-    return header
-
-
 def get_picklist(picklist_name):
     """Pulls a BigTime 'Picklist'
     Use to build project and expense catagory lookup tables"""
@@ -64,7 +80,7 @@ def get_picklist(picklist_name):
     valid_picklists = ['projects', 'ExpenseCodes']
     if picklist_name not in valid_picklists:
         raise ValueError('Not a valid picklist')
-    header = build_credentials()
+    # header = build_credentials()
     return picklist_name
 
 
@@ -73,4 +89,6 @@ if __name__ == '__main__':
     print('**DIR:', os.getcwd())
     build_lookup_dictn_from_excel()
     pp(BT_LOOKUP)
-    pp(build_credentials())
+    # pp(build_credentials())
+    NRC_AUTH = Authorizer()
+    pp(NRC_AUTH.header)
