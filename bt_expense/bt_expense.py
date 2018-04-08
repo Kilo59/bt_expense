@@ -30,11 +30,11 @@ class Authorizer(object):
 
     def __init__(self, workbook_filename='Expenses.xlsx'):
         self.wb_name = workbook_filename
-        self.userid = None
-        self.userpwd = None
-        self.api_key = None
         self.header = self._build_credentials()
-        self.autherized = False
+        self.userid = self.header['User Id']
+        self.userpwd = self.header['Password']
+        self.api_key = self._check_user_provided_key()
+        self._authorized = False
 
     def _build_credentials(self):
         """Pulls Login information from the `Setup` worksheet. Return dictionary
@@ -44,6 +44,20 @@ class Authorizer(object):
         header = {k: v for (k, v) in zip(keys, values)}
         # TODO: Format for BigTime
         return header
+
+    def _check_user_provided_key(self):
+        """Checks the Excel workbook API key value.
+        If the length of the API key matches the expected length of the API
+        key, assume the key is valid."""
+        api_key_value = get_values('Setup', 'B5', 'B5',
+                                   workbook_name=self.wb_name)[0]
+        # TODO: change to length of of API key
+        if len(api_key_value) <= 15:
+            print('\tNo API key')
+            return None
+        else:
+            print('\tAPI key provided')
+            return api_key_value
 
 
 def get_wb(workbook_name='Expenses.xlsx'):
@@ -92,3 +106,4 @@ if __name__ == '__main__':
     # pp(build_credentials())
     NRC_AUTH = Authorizer()
     pp(NRC_AUTH.header)
+    pp(NRC_AUTH.api_key)
