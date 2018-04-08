@@ -19,15 +19,27 @@ MAIN_DIR = fixpath('{}/bt_expense'.format(ROOT_DIR))
 class SmokeTest(unittest.TestCase):
     """Test that nothing is on fire."""
     def setUp(self):
-        os.chdir(TEST_DIR)
+        print('SetUp')
 
     def tearDown(self):
-        os.chdir(ROOT_DIR)
+        print('tearDown')
 
     def test_pulling_column_values(self):
         os.chdir(MAIN_DIR)
         a1 = bte.get_values('Expenses', 'A1')[0]
         self.assertEqual(a1, 'Project')
+
+
+class AuthorizerTests(unittest.TestCase):
+    """Tests related to the Authorizer Class"""
+    def setUp(self):
+        print('SetUp')
+
+    def tearDown(self):
+        print('tearDown')
+
+    def test_authorizer_object_creation(self):
+        bte.Authorizer('bt_expense/Expenses.xlsx')
 
 
 if __name__ == "__main__":
