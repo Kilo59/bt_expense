@@ -110,3 +110,5 @@ ENV/
 *.PNG
 
 *.pdf
+
+\.pytest_cache/v/cache/
