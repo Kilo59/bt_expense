@@ -4,10 +4,11 @@ bt_expense.py
 Pull expenses from Excel Spreadsheet and upload to BigTime via REST HTTP call.
 """
 import os
+import json
 from pprint import pprint as pp
 # from pprint import pformat as pf
 # import openpyxl as opxl
-# import requests as r
+import requests as r
 from openpyxl import load_workbook
 
 # CD
@@ -30,11 +31,12 @@ class Authorizer(object):
 
     def __init__(self, workbook_filename='Expenses.xlsx'):
         self.wb_name = workbook_filename
-        self.header = self._build_credentials()
-        self.userid = self.header['User Id']
-        self.userpwd = self.header['Password']
+        self.auth_header = self._build_credentials()
+        self.userid = self.auth_header['userid']
+        self.userpwd = self.auth_header['pwd']
         self.api_key = self._check_user_provided_key()
         self._authorized = False
+        self.header = self.autherize_session()
 
     def _build_credentials(self):
         """Pulls Login information from the `Setup` worksheet. Return dictionary
@@ -43,6 +45,7 @@ class Authorizer(object):
         values = get_values('Setup', 'B1', 'B4', workbook_name=self.wb_name)
         header = {k: v for (k, v) in zip(keys, values)}
         # TODO: Format for BigTime
+        header['Content-Type'] = 'application/json'
         return header
 
     def _check_user_provided_key(self):
@@ -52,12 +55,26 @@ class Authorizer(object):
         api_key_value = get_values('Setup', 'B5', 'B5',
                                    workbook_name=self.wb_name)[0]
         # TODO: change to length of of API key
-        if len(api_key_value) <= 15:
-            print('\tNo API key')
-            return None
-        else:
-            print('\tAPI key provided')
+        if 'BT4.' in api_key_value:
+            print('\n\tAPI key provided')
             return api_key_value
+        else:
+            print('\n\tNo API key')
+            return None
+
+    def autherize_session(self):
+        if not self.api_key:
+            response = r.post(f'{BASE}/session',
+                              headers={'Content-Type': 'application/json'},
+                              data=json.dumps(self.auth_header).encode('utf-8'))
+            response_dict = json.loads(response.text)
+            self.api_key = response_dict['token']
+        header = {'X-Auth-Token': self.api_key,
+                  'X-Auth-Realm': self.auth_header['Firm'],
+                  'Content-Type': self.auth_header['Content-Type']}
+        self._authorized = True
+        print('Session Header\n', header)
+        return header
 
 
 def get_wb(workbook_name='Expenses.xlsx'):
@@ -87,15 +104,19 @@ def get_values(sheet_name, start, stop=None, workbook_name='Expenses.xlsx'):
     return values
 
 
-def get_picklist(picklist_name):
+def get_picklist(auth_object, picklist_name):
     """Pulls a BigTime 'Picklist'
-    Use to build project and expense catagory lookup tables"""
+    Use to build project and expense catagory lookup tables.
+    Requires Admin account."""
     # TODO: complete `get_picklist()` function
     valid_picklists = ['projects', 'ExpenseCodes']
     if picklist_name not in valid_picklists:
         raise ValueError('Not a valid picklist')
-    # header = build_credentials()
-    return picklist_name
+    pick_list_url = f'{BASE}/picklist/{picklist_name}'
+    print(pick_list_url)
+    response = r.get(pick_list_url, headers=auth_object.header)
+    return response.json()
+    # return response.json()
 
 
 if __name__ == '__main__':
@@ -105,5 +126,12 @@ if __name__ == '__main__':
     pp(BT_LOOKUP)
     # pp(build_credentials())
     NRC_AUTH = Authorizer()
-    pp(NRC_AUTH.header)
+    pp(NRC_AUTH.auth_header)
     pp(NRC_AUTH.api_key)
+    print('*' * 79)
+    # expense_codes = get_picklist(NRC_AUTH, 'ExpenseCodes')
+    # with open('expense_codes.csv', 'w') as f_out:
+    #     f_out.write('Id,Name')
+    #     for expense_object in expense_codes:
+    #         f_out.write('{},{}\n'.format(expense_object['Id'],
+    #                                      expense_object['Name']))
