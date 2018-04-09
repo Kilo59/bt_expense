@@ -29,8 +29,9 @@ class Authorizer(object):
     User login and password will be used to obtain an API key.
     If API key is provided, skip the step of obtaining API key"""
 
-    def __init__(self, workbook_filename='Expenses.xlsx'):
+    def __init__(self, workbook_filename='Expenses.xlsx', staffsid=None):
         self.wb_name = workbook_filename
+        self.staffsid = staffsid
         self.auth_header = self._build_credentials()
         self.userid = self.auth_header['userid']
         self.userpwd = self.auth_header['pwd']
@@ -69,6 +70,7 @@ class Authorizer(object):
                               data=json.dumps(self.auth_header).encode('utf-8'))
             response_dict = json.loads(response.text)
             self.api_key = response_dict['token']
+            self.staffsid = response_dict['staffsid']
         header = {'X-Auth-Token': self.api_key,
                   'X-Auth-Realm': self.auth_header['Firm'],
                   'Content-Type': self.auth_header['Content-Type']}
@@ -77,8 +79,41 @@ class Authorizer(object):
         return header
 
 
+class Expensor(Authorizer):
+
+    def post_expenses(self):
+        projs = get_values('Expenses', 'F2', 'F121')
+        cats = get_values('Expenses', 'G2', 'G121')
+        dates = get_values('Expenses', 'C2', 'C121')
+        costs = get_values('Expenses', 'D2', 'D121')
+        notes = get_values('Expenses', 'E2', 'E121')
+
+        expense_url = f'{BASE}/expense/detail'
+        for proj, cat, date, cost, note in zip(projs, cats, dates, costs, notes):
+            # print(str(date)[:10])
+            content = {'staffsid': int(self.staffsid),
+                       'projectsid': int(proj),
+                       'catsid': int(cat),
+                       'dt': str(date)[:10],
+                       'CostIN': int(cost),
+                       'Nt': note,
+                       'notes': 'March Expense',
+                       'ApprovalStatus': 0}
+            # pp(content)
+            # monkey 
+        # content = {'staffsid': self.staffsid,
+        #            'projectsid': 1204,
+        #            'catsid': 90,
+        #            'dt': '2018-03-01',
+        #            'CostIN': 10.88,
+        #            'Nt': 'Airport Food'}
+            print(r.post(expense_url, headers=self.header,
+                         data=json.dumps(content).encode()))
+        return len(costs)
+
+
 def get_wb(workbook_name='Expenses.xlsx'):
-    return load_workbook(filename=workbook_name)
+    return load_workbook(filename=workbook_name, data_only=True)
 
 
 def build_lookup_dictn_from_excel():
@@ -135,3 +170,6 @@ if __name__ == '__main__':
     #     for expense_object in expense_codes:
     #         f_out.write('{},{}\n'.format(expense_object['Id'],
     #                                      expense_object['Name']))
+    exp1 = Expensor(staffsid=859)
+    pp(exp1.header)
+    pp(exp1.post_expenses())
