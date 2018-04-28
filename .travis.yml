@@ -21,6 +21,7 @@ before_script:
   - ./cc-test-reporter before-build
 # command to run tests
 script:
+  - pwd
   - ls
   - pytest -v --cov-report term --cov-report xml --cov=bt_expense tests/
 after_script:
