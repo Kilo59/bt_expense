@@ -67,26 +67,29 @@ class Authorizer(object):
 class Expensor(Authorizer):
 
     def post_expenses(self):
-        projs = get_values('Expenses', 'F2', 'F121')
-        cats = get_values('Expenses', 'G2', 'G121')
-        dates = get_values('Expenses', 'C2', 'C121')
-        costs = get_values('Expenses', 'D2', 'D121')
-        notes = get_values('Expenses', 'E2', 'E121')
+        pnames = get_values('Expenses', 'A2', 'A102')
+        projs = get_values('Expenses', 'F2', 'F102')
+        cats = get_values('Expenses', 'G2', 'G102')
+        dates = get_values('Expenses', 'C2', 'C102')
+        costs = get_values('Expenses', 'D2', 'D102')
+        notes = get_values('Expenses', 'E2', 'E102')
 
         expense_url = '{}/expense/detail'.format(BASE)
-        for proj, cat, date, cost, note in zip(projs, cats,
-                                               dates, costs, notes):
-            # print(str(date)[:10])
-            content = {'staffsid': int(self.staffsid),
-                       'projectsid': int(proj),
-                       'catsid': int(cat),
-                       'dt': str(date)[:10],
-                       'CostIN': cost,
-                       'Nt': note,
-                       'notes': 'March Expense',
-                       'ApprovalStatus': 0}
-            print(r.post(expense_url, headers=self.header,
-                         data=json.dumps(content).encode()))
+        for proj, cat, date, cost, note, pname in zip(projs, cats,
+                                                      dates, costs,
+                                                      notes, pnames):
+            if cost and date:
+                content = {'staffsid': int(self.staffsid),
+                           'projectsid': int(proj),
+                           'catsid': int(cat),
+                           'dt': str(date)[:10],
+                           'CostIN': cost,
+                           'Nt': note,
+                           'notes': 'March Expense',
+                           'ProjectNm': pname,
+                           'ApprovalStatus': 0}
+                print(r.post(expense_url, headers=self.header,
+                             data=json.dumps(content).encode()))
         return len(costs)
 
 
