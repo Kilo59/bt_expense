@@ -49,7 +49,7 @@ class Authorizer(object):
         return header
 
     def authorize_session(self):
-        response = r.post(f'{BASE}/session',
+        response = r.post('{}/session'.format(BASE),
                           headers={'Content-Type': 'application/json'},
                           data=json.dumps(self.auth_header).encode('utf-8'))
         response_dict = json.loads(response.text)
@@ -72,7 +72,7 @@ class Expensor(Authorizer):
         costs = get_values('Expenses', 'D2', 'D121')
         notes = get_values('Expenses', 'E2', 'E121')
 
-        expense_url = f'{BASE}/expense/detail'
+        expense_url = '{}/expense/detail'.format(BASE)
         for proj, cat, date, cost, note in zip(projs, cats,
                                                dates, costs, notes):
             # print(str(date)[:10])
@@ -124,7 +124,7 @@ def get_picklist(auth_object, picklist_name):
     valid_picklists = ['projects', 'ExpenseCodes']
     if picklist_name not in valid_picklists:
         raise ValueError('Not a valid picklist')
-    pick_list_url = f'{BASE}/picklist/{picklist_name}'
+    pick_list_url = '{0}/picklist/{1}'.format(BASE, picklist_name)
     print(pick_list_url)
     response = r.get(pick_list_url, headers=auth_object.header)
     return response.json()
