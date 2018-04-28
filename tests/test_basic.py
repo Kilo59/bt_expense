@@ -5,6 +5,7 @@ simple tests for bt_expense.
 """
 import os
 import unittest
+import pytest
 
 # import pytest
 
@@ -16,27 +17,25 @@ ROOT_DIR = fixpath(os.path.dirname(TEST_DIR))
 MAIN_DIR = fixpath('{}/bt_expense'.format(ROOT_DIR))
 
 
-class SmokeTest(unittest.TestCase):
-    """Test that nothing is on fire."""
-    def setUp(self):
-        print('SetUp')
-
-    def tearDown(self):
-        print('tearDown')
-
-    def test_pulling_column_values(self):
+def test_pulling_column_values():
+    try:
         os.chdir(MAIN_DIR)
-        a1 = bte.get_values('Expenses', 'A1')[0]
-        self.assertEqual(a1, 'Project')
+    except FileNotFoundError:
+        pass
+    a1 = bte.get_values('Expenses', 'A1')[0]
+    assert a1, 'Project'
+    os.chdir(ROOT_DIR)
 
 
 class AuthorizerTests(unittest.TestCase):
     """Tests related to the Authorizer Class"""
     def setUp(self):
+        os.chdir(MAIN_DIR)
         print('SetUp')
 
     def tearDown(self):
         print('tearDown')
+        os.chdir(ROOT_DIR)
 
     def test_authorizer_object_creation(self):
         bte.Authorizer('bt_expense/Expenses.xlsx')
@@ -48,4 +47,4 @@ if __name__ == "__main__":
     print('root:', ROOT_DIR)
     print('test:', TEST_DIR)
     print('main:', MAIN_DIR)
-    unittest.main()
+    pytest.main(args=['-v'])
