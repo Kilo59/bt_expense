@@ -44,7 +44,6 @@ class Authorizer(object):
         keys = get_values('Setup', 'A1', 'A4', workbook_name=self.wb_name)
         values = get_values('Setup', 'B1', 'B4', workbook_name=self.wb_name)
         header = {k: v for (k, v) in zip(keys, values)}
-        # TODO: Format for BigTime
         header['Content-Type'] = 'application/json'
         return header
 
@@ -52,6 +51,8 @@ class Authorizer(object):
         response = r.post('{}/session'.format(BASE),
                           headers={'Content-Type': 'application/json'},
                           data=json.dumps(self.auth_header).encode('utf-8'))
+        if str(response.status_code)[0] is not '2':
+            raise(ConnectionRefusedError)
         response_dict = json.loads(response.text)
         self.api_key = response_dict['token']
         self.staffsid = response_dict['staffsid']
@@ -108,7 +109,7 @@ def get_values(sheet_name, start, stop=None, workbook_name='Expenses.xlsx'):
     """Pulls a column (or section) of values from a Worksheet.
     Returns a list."""
     values = []
-    sheet = get_wb()[sheet_name]
+    sheet = get_wb(workbook_name)[sheet_name]
     if not stop:
         stop = sheet.max_row
     cells = [c[0].value for c in sheet[start:stop]]

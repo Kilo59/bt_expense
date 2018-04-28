@@ -17,6 +17,7 @@ PYTHON_VER = version_info[0]
 TEST_DIR = fixpath(os.path.abspath(os.path.dirname(__file__)))
 ROOT_DIR = fixpath(os.path.dirname(TEST_DIR))
 MAIN_DIR = fixpath('{}/bt_expense'.format(ROOT_DIR))
+WORKBOOK_NAME = 'bt_expense/Expenses_Template.xlsx'
 
 
 def test_pulling_column_values():
@@ -30,18 +31,19 @@ def test_pulling_column_values():
     os.chdir(ROOT_DIR)
 
 
-class AuthorizerTests(unittest.TestCase):
-    """Tests related to the Authorizer Class"""
-    def setUp(self):
-        os.chdir(MAIN_DIR)
-        print('SetUp')
+def test_pulling_auth_info():
+    expected_keys = ['userid', 'pwd', 'Firm', 'AuthType']
+    actual_keys = bte.get_values('Setup', 'A1', 'A4',
+                                 workbook_name=WORKBOOK_NAME)
+    for key in expected_keys:
+        assert key in actual_keys
 
-    def tearDown(self):
-        print('tearDown')
-        os.chdir(ROOT_DIR)
 
-    def test_authorizer_object_creation(self):
-        bte.Authorizer('bt_expense/Expenses_Template.xlsx')
+def test_authorizer_object_creation():
+    try:
+        bte.Authorizer(workbook_filename=WORKBOOK_NAME)
+    except ConnectionRefusedError as E:
+        print(E)
 
 
 if __name__ == "__main__":
