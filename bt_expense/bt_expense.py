@@ -12,7 +12,7 @@ import requests as r
 from openpyxl import load_workbook
 
 # CD
-os.chdir('bt_expense')
+# os.chdir('bt_expense')
 
 # Constants
 BASE = 'https://iq.bigtime.net/BigtimeData/api/v2'
@@ -35,7 +35,7 @@ class Authorizer(object):
         self.auth_header = self._build_credentials()
         self.userid = self.auth_header['userid']
         self.userpwd = self.auth_header['pwd']
-        self.api_key = self._check_user_provided_key()
+        self.api_key = None
         self._authorized = False
         self.header = self.autherize_session()
 
@@ -49,28 +49,27 @@ class Authorizer(object):
         header['Content-Type'] = 'application/json'
         return header
 
-    def _check_user_provided_key(self):
-        """Checks the Excel workbook API key value.
-        If the length of the API key matches the expected length of the API
-        key, assume the key is valid."""
-        api_key_value = get_values('Setup', 'B5', 'B5',
-                                   workbook_name=self.wb_name)[0]
-        # TODO: change to length of of API key
-        if 'BT4.' in api_key_value:
-            print('\n\tAPI key provided')
-            return api_key_value
-        else:
-            print('\n\tNo API key')
-            return None
+    # def _check_user_provided_key(self):
+    #     """Checks the Excel workbook API key value.
+    #     If the length of the API key matches the expected length of the API
+    #     key, assume the key is valid."""
+    #     api_key_value = get_values('Setup', 'B5', 'B5',
+    #                                workbook_name=self.wb_name)[0]
+    #     # TODO: change to length of of API key
+    #     if 'BT4.' in api_key_value:
+    #         print('\n\tAPI key provided')
+    #         return api_key_value
+    #     else:
+    #         print('\n\tNo API key')
+    #         return None
 
     def autherize_session(self):
-        if not self.api_key:
-            response = r.post(f'{BASE}/session',
-                              headers={'Content-Type': 'application/json'},
-                              data=json.dumps(self.auth_header).encode('utf-8'))
-            response_dict = json.loads(response.text)
-            self.api_key = response_dict['token']
-            self.staffsid = response_dict['staffsid']
+        response = r.post(f'{BASE}/session',
+                          headers={'Content-Type': 'application/json'},
+                          data=json.dumps(self.auth_header).encode('utf-8'))
+        response_dict = json.loads(response.text)
+        self.api_key = response_dict['token']
+        self.staffsid = response_dict['staffsid']
         header = {'X-Auth-Token': self.api_key,
                   'X-Auth-Realm': self.auth_header['Firm'],
                   'Content-Type': self.auth_header['Content-Type']}
@@ -89,24 +88,17 @@ class Expensor(Authorizer):
         notes = get_values('Expenses', 'E2', 'E121')
 
         expense_url = f'{BASE}/expense/detail'
-        for proj, cat, date, cost, note in zip(projs, cats, dates, costs, notes):
+        for proj, cat, date, cost, note in zip(projs, cats,
+                                               dates, costs, notes):
             # print(str(date)[:10])
             content = {'staffsid': int(self.staffsid),
                        'projectsid': int(proj),
                        'catsid': int(cat),
                        'dt': str(date)[:10],
-                       'CostIN': int(cost),
+                       'CostIN': cost,
                        'Nt': note,
                        'notes': 'March Expense',
                        'ApprovalStatus': 0}
-            # pp(content)
-            # monkey 
-        # content = {'staffsid': self.staffsid,
-        #            'projectsid': 1204,
-        #            'catsid': 90,
-        #            'dt': '2018-03-01',
-        #            'CostIN': 10.88,
-        #            'Nt': 'Airport Food'}
             print(r.post(expense_url, headers=self.header,
                          data=json.dumps(content).encode()))
         return len(costs)
@@ -172,4 +164,4 @@ if __name__ == '__main__':
     #                                      expense_object['Name']))
     exp1 = Expensor(staffsid=859)
     pp(exp1.header)
-    pp(exp1.post_expenses())
+    # pp(exp1.post_expenses())
