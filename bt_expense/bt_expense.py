@@ -7,7 +7,6 @@ import os
 import json
 from pprint import pprint as pp
 # from pprint import pformat as pf
-# import openpyxl as opxl
 import requests as r
 from openpyxl import load_workbook
 
@@ -23,7 +22,7 @@ BT_LOOKUP = {'proj': {},
 
 
 class Authorizer(object):
-    """Autherizes a BitTime REST API session.
+    """authorizes a BitTime REST API session.
     Can authorize using a user login and password or an API key.
 
     User login and password will be used to obtain an API key.
@@ -37,7 +36,7 @@ class Authorizer(object):
         self.userpwd = self.auth_header['pwd']
         self.api_key = None
         self._authorized = False
-        self.header = self.autherize_session()
+        self.header = self.authorize_session()
 
     def _build_credentials(self):
         """Pulls Login information from the `Setup` worksheet. Return dictionary
@@ -49,21 +48,7 @@ class Authorizer(object):
         header['Content-Type'] = 'application/json'
         return header
 
-    # def _check_user_provided_key(self):
-    #     """Checks the Excel workbook API key value.
-    #     If the length of the API key matches the expected length of the API
-    #     key, assume the key is valid."""
-    #     api_key_value = get_values('Setup', 'B5', 'B5',
-    #                                workbook_name=self.wb_name)[0]
-    #     # TODO: change to length of of API key
-    #     if 'BT4.' in api_key_value:
-    #         print('\n\tAPI key provided')
-    #         return api_key_value
-    #     else:
-    #         print('\n\tNo API key')
-    #         return None
-
-    def autherize_session(self):
+    def authorize_session(self):
         response = r.post(f'{BASE}/session',
                           headers={'Content-Type': 'application/json'},
                           data=json.dumps(self.auth_header).encode('utf-8'))
