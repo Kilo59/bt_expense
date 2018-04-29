@@ -21,14 +21,9 @@ WORKBOOK_NAME = 'bt_expense/Expenses_Template.xlsx'
 
 
 def test_pulling_column_values():
-    try:
-        os.chdir(MAIN_DIR)
-    except FileNotFoundError:
-        pass
     a1 = bte.get_values('Expenses', 'A1',
-                        workbook_name='Expenses_Template.xlsx')[0]
+                        workbook_name=WORKBOOK_NAME)[0]
     assert a1, 'Project'
-    os.chdir(ROOT_DIR)
 
 
 def test_pulling_auth_info():
