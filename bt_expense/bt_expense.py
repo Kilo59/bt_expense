@@ -52,6 +52,7 @@ class Authorizer(object):
                           headers={'Content-Type': 'application/json'},
                           data=json.dumps(self.auth_header).encode('utf-8'))
         if str(response.status_code)[0] is not '2':
+            # TODO Raise Requests HTTP Error
             raise(ConnectionRefusedError)
         response_dict = json.loads(response.text)
         self.api_key = response_dict['token']
@@ -66,15 +67,14 @@ class Authorizer(object):
 
 class Expensor(Authorizer):
 
-    def post_expenses(self):
+    def prep_expenses(self):
         pnames = get_values('Expenses', 'A2', 'A102')
         projs = get_values('Expenses', 'F2', 'F102')
         cats = get_values('Expenses', 'G2', 'G102')
         dates = get_values('Expenses', 'C2', 'C102')
         costs = get_values('Expenses', 'D2', 'D102')
         notes = get_values('Expenses', 'E2', 'E102')
-
-        expense_url = '{}/expense/detail'.format(BASE)
+        expense_entries = []
         for proj, cat, date, cost, note, pname in zip(projs, cats,
                                                       dates, costs,
                                                       notes, pnames):
@@ -83,14 +83,27 @@ class Expensor(Authorizer):
                            'projectsid': int(proj),
                            'catsid': int(cat),
                            'dt': str(date)[:10],
-                           'CostIN': cost,
+                           'CostIN': float('{0:.2f}'.format(cost)),
                            'Nt': note,
                            'notes': 'March Expense',
-                           'ProjectNm': pname,
+                        #    'ProjectNm': pname,
                            'ApprovalStatus': 0}
-                print(r.post(expense_url, headers=self.header,
-                             data=json.dumps(content).encode()))
-        return len(costs)
+                expense_entries.append(content)
+        return expense_entries
+
+    def post_expenses(self):
+        expense_url = '{}/expense/detail'.format(BASE)
+        expense_entries = self.prep_expenses()
+        for entry in expense_entries:
+            print(r.post(expense_url, headers=self.header,
+                         data=json.dumps(entry).encode()))
+        return len(expense_entries)
+
+    def get_active_reports(self):
+        response = r.get('{0}/expense/reports'.format(BASE),
+                         headers=self.header)
+        print(response.status_code)
+        return response.json()
 
 
 def get_wb(workbook_name='Expenses.xlsx'):
@@ -153,4 +166,6 @@ if __name__ == '__main__':
     #                                      expense_object['Name']))
     exp1 = Expensor(staffsid=859)
     pp(exp1.header)
+    pp(exp1.get_active_reports())
+    pp(exp1.prep_expenses())
     # pp(exp1.post_expenses())
