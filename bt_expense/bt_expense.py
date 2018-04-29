@@ -67,7 +67,7 @@ class Authorizer(object):
 
 class Expensor(Authorizer):
 
-    def prep_expenses(self):
+    def prep_expenses(self, save=True):
         pnames = get_values('Expenses', 'A2', 'A102')
         projs = get_values('Expenses', 'F2', 'F102')
         cats = get_values('Expenses', 'G2', 'G102')
@@ -86,9 +86,11 @@ class Expensor(Authorizer):
                            'CostIN': float('{0:.2f}'.format(cost)),
                            'Nt': note,
                            'notes': 'March Expense',
-                        #    'ProjectNm': pname,
+                           # 'ProjectNm': pname,
                            'ApprovalStatus': 0}
                 expense_entries.append(content)
+        if save:
+            json_to_file(expense_entries, 'entries.json')
         return expense_entries
 
     def post_expenses(self):
@@ -148,6 +150,12 @@ def get_picklist(auth_object, picklist_name):
     # return response.json()
 
 
+def json_to_file(json_obj, filename='data.json'):
+    with open(filename, 'w') as f_out:
+        json.dump(json_obj, f_out)
+    return filename
+
+
 if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
@@ -166,6 +174,6 @@ if __name__ == '__main__':
     #                                      expense_object['Name']))
     exp1 = Expensor(staffsid=859)
     pp(exp1.header)
-    pp(exp1.get_active_reports())
+    # pp(exp1.get_active_reports())
     pp(exp1.prep_expenses())
     # pp(exp1.post_expenses())
