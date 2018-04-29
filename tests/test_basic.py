@@ -4,7 +4,7 @@ basic_tests.py
 simple tests for bt_expense.
 """
 import os
-import unittest
+# import unittest
 import pytest
 from sys import version_info
 # import pytest
