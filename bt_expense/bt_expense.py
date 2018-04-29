@@ -61,7 +61,7 @@ class Authorizer(object):
                   'X-Auth-Realm': self.auth_header['Firm'],
                   'Content-Type': self.auth_header['Content-Type']}
         self._authorized = True
-        print('Session Header\n', header)
+        # print('Session Header\n', header)
         return header
 
 
@@ -75,6 +75,7 @@ class Expensor(Authorizer):
         costs = get_values('Expenses', 'D2', 'D102')
         notes = get_values('Expenses', 'E2', 'E102')
         expense_entries = []
+        total_cost = 0
         for proj, cat, date, cost, note, pname in zip(projs, cats,
                                                       dates, costs,
                                                       notes, pnames):
@@ -85,20 +86,31 @@ class Expensor(Authorizer):
                            'dt': str(date)[:10],
                            'CostIN': float('{0:.2f}'.format(cost)),
                            'Nt': note,
-                           'notes': 'March Expense',
                            # 'ProjectNm': pname,
                            'ApprovalStatus': 0}
+                total_cost += float('{0:.2f}'.format(cost))
                 expense_entries.append(content)
         if save:
             json_to_file(expense_entries, 'entries.json')
-        return expense_entries
+        return expense_entries, float('{0:.2f}'.format(total_cost))
 
-    def post_expenses(self):
+    def post_expenses(self, upload=False):
         expense_url = '{}/expense/detail'.format(BASE)
-        expense_entries = self.prep_expenses()
-        for entry in expense_entries:
-            print(r.post(expense_url, headers=self.header,
-                         data=json.dumps(entry).encode()))
+        expense_entries, total = self.prep_expenses()
+        if upload is not True:
+            input_map = {'Y': True, 'N': False}
+            inp = input('Upload ${} {}\n{}'.format(total,
+                                                   'worth of entries?',
+                                                   '(y/n)')
+                        ).upper()
+            upload = input_map[inp]
+        if upload:
+            for entry in expense_entries:
+                print(r.post(expense_url, headers=self.header,
+                             data=json.dumps(entry).encode()),
+                      entry['dt'], entry['CostIN'])
+        else:
+            print('\t${} expense entries not uploaded!'.format(total))
         return len(expense_entries)
 
     def get_active_reports(self):
@@ -159,12 +171,12 @@ def json_to_file(json_obj, filename='data.json'):
 if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
-    build_lookup_dictn_from_excel()
-    pp(BT_LOOKUP)
+    # build_lookup_dictn_from_excel()
+    # pp(BT_LOOKUP)
     # pp(build_credentials())
-    NRC_AUTH = Authorizer()
-    pp(NRC_AUTH.auth_header)
-    pp(NRC_AUTH.api_key)
+    # NRC_AUTH = Authorizer()
+    # pp(NRC_AUTH.auth_header)
+    # pp(NRC_AUTH.api_key)
     print('*' * 79)
     # expense_codes = get_picklist(NRC_AUTH, 'ExpenseCodes')
     # with open('expense_codes.csv', 'w') as f_out:
@@ -173,7 +185,8 @@ if __name__ == '__main__':
     #         f_out.write('{},{}\n'.format(expense_object['Id'],
     #                                      expense_object['Name']))
     exp1 = Expensor(staffsid=859)
-    pp(exp1.header)
+    # pp(exp1.header)
     # pp(exp1.get_active_reports())
-    pp(exp1.prep_expenses())
-    # pp(exp1.post_expenses())
+    exp_entries = exp1.prep_expenses()
+    print(len(exp_entries))
+    pp(exp1.post_expenses())
