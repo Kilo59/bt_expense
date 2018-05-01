@@ -14,6 +14,8 @@ from openpyxl import load_workbook
 # os.chdir('bt_expense')
 
 # Constants
+# ENTER YOU BIGTIME STAFF_ID HERE
+STAFF_ID = 00
 BASE = 'https://iq.bigtime.net/BigtimeData/api/v2'
 UTF = 'utf-8'
 # Global Variables
@@ -171,22 +173,8 @@ def json_to_file(json_obj, filename='data.json'):
 if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
-    # build_lookup_dictn_from_excel()
-    # pp(BT_LOOKUP)
-    # pp(build_credentials())
-    # NRC_AUTH = Authorizer()
-    # pp(NRC_AUTH.auth_header)
-    # pp(NRC_AUTH.api_key)
     print('*' * 79)
-    # expense_codes = get_picklist(NRC_AUTH, 'ExpenseCodes')
-    # with open('expense_codes.csv', 'w') as f_out:
-    #     f_out.write('Id,Name')
-    #     for expense_object in expense_codes:
-    #         f_out.write('{},{}\n'.format(expense_object['Id'],
-    #                                      expense_object['Name']))
-    exp1 = Expensor(staffsid=859)
-    # pp(exp1.header)
-    # pp(exp1.get_active_reports())
+    exp1 = Expensor(staffsid=STAFF_ID)
     exp_entries = exp1.prep_expenses()
     print(len(exp_entries))
     pp(exp1.post_expenses())
