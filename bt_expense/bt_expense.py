@@ -14,8 +14,6 @@ from openpyxl import load_workbook
 # os.chdir('bt_expense')
 
 # Constants
-# ENTER YOU BIGTIME STAFF_ID HERE
-STAFF_ID = 00
 BASE = 'https://iq.bigtime.net/BigtimeData/api/v2'
 UTF = 'utf-8'
 # Global Variables
@@ -30,9 +28,9 @@ class Authorizer(object):
     User login and password will be used to obtain an API key.
     If API key is provided, skip the step of obtaining API key"""
 
-    def __init__(self, workbook_filename='Expenses.xlsx', staffsid=None):
+    def __init__(self, workbook_filename='Expenses.xlsx'):
         self.wb_name = workbook_filename
-        self.staffsid = staffsid
+        self.staffsid = None
         self.auth_header = self._build_credentials()
         self.userid = self.auth_header['userid']
         self.userpwd = self.auth_header['pwd']
@@ -174,7 +172,7 @@ if __name__ == '__main__':
     print(__doc__)
     print('**DIR:', os.getcwd())
     print('*' * 79)
-    exp1 = Expensor(staffsid=STAFF_ID)
+    exp1 = Expensor()
     exp_entries = exp1.prep_expenses()
     print(len(exp_entries))
     pp(exp1.post_expenses())
