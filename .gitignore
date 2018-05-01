@@ -1,6 +1,6 @@
 # bt_expense folders and files to ignore
 *.xlsx
-!Expenses.xlsx
+!Expenses_Template.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -106,3 +106,11 @@ ENV/
 
 *.ipynb
 .vscode/settings.json
+
+*.PNG
+
+*.pdf
+
+\.pytest_cache/v/cache/
+
+*.jpg

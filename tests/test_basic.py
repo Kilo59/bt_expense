@@ -4,35 +4,48 @@ basic_tests.py
 simple tests for bt_expense.
 """
 import os
-import unittest
-
+# import unittest
 import pytest
+from sys import version_info
+# import pytest
 
 from context import bt_expense as bte
 from context import fixpath
 
-TEST_DIR = os.path.abspath(os.path.dirname(__file__))
-ROOT_DIR = os.path.dirname(TEST_DIR)
-MAIN_DIR = '{}/bt_expense'.format(ROOT_DIR)
+PYTHON_VER = version_info[0]
+
+TEST_DIR = fixpath(os.path.abspath(os.path.dirname(__file__)))
+ROOT_DIR = fixpath(os.path.dirname(TEST_DIR))
+MAIN_DIR = fixpath('{}/bt_expense'.format(ROOT_DIR))
+WORKBOOK_NAME = 'bt_expense/Expenses_Template.xlsx'
 
 
-class SmokeTest(unittest.TestCase):
-    """Test that nothing is on fire."""
-    def setUp(self):
-        os.chdir(TEST_DIR)
+def test_pulling_column_values():
+    a1 = bte.get_values('Expenses', 'A1',
+                        workbook_name=WORKBOOK_NAME)[0]
+    assert a1, 'Project'
 
-    def tearDown(self):
-        os.chdir(ROOT_DIR)
 
-    def test_pulling_column_values(self):
-        os.chdir(MAIN_DIR)
-        a1 = bte.get_values('Expenses', 'A1')[0]
-        self.assertEqual(a1, 'Project')
+def test_pulling_auth_info():
+    expected_keys = ['userid', 'pwd', 'Firm', 'AuthType']
+    actual_keys = bte.get_values('Setup', 'A1', 'A4',
+                                 workbook_name=WORKBOOK_NAME)
+    for key in expected_keys:
+        assert key in actual_keys
+
+
+def test_authorizer_object_creation():
+    try:
+        bte.Authorizer(workbook_filename=WORKBOOK_NAME)
+    except ConnectionRefusedError as E:
+        print(E)
+
 
 if __name__ == "__main__":
+    print('Python {}'.format(PYTHON_VER))
     print(__doc__)
     print(__file__)
     print('root:', ROOT_DIR)
     print('test:', TEST_DIR)
     print('main:', MAIN_DIR)
-    unittest.main()
+    pytest.main(args=['-v'])
